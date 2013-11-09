@@ -72,7 +72,7 @@ module.exports = function(app)
         //si no existe la sesion del usuario redirigimos al login
         if(!req.session.username)
         { 
-            res.redirect("/login");
+            res.redirect("/");
         }
         //en otro caso mostramos el formulario
         else 
