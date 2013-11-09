@@ -66,6 +66,24 @@ module.exports = function(app)
     	});
     });
 
+    //mostramos la vista views/home.jade solo si el usuario ha iniciado sesion
+    app.get("/home", function(req, res)
+    {
+        //si no existe la sesion del usuario redirigimos al login
+        if(!req.session.username)
+        { 
+            res.redirect("/login");
+        }
+        //en otro caso mostramos el formulario
+        else 
+        {
+            res.render('home', { 
+                title: 'Bienvenido a nuestra aplicación',
+                username: req.session.username//asi accedemos a la sesion del usuario
+            });
+        }
+    });
+
     app.get("/logout", function(req,res)
     {
     	req.session.destroy();
