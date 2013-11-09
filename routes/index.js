@@ -1,8 +1,3 @@
-/**
-* Sencillo script con nodejs trabajando con sqlite3,
-* bootstrap de twitter y el motor de plantillas jade
-*/
-
 //llamamos al modelo user.js para utilizar toda su funcionalidad
 var UserModel = require('../models/user');
 
@@ -10,34 +5,19 @@ var UserModel = require('../models/user');
 module.exports = function(app)
 {
 
-	//ruta para crear la tabla usuarios
-    app.get("/createTable", function(req, res)
-    {
-		UserModel.createUsersTable();
-		res.end();
-	});
-
     //para acceder aquí escribiremos http://localhost:3000/
     //req es un objeto que contiene información sobre la solicitud HTTP que provocó el evento. 
     //En respuesta a req, res se utiliza para devolver la respuesta HTTP que necesitemos.
     app.get("/", function(req, res)
     {
+        //si ha iniciado sesión no puede volver al login
+        if(req.session.username)
+        { 
+            res.redirect("/home");
+        }
         //en este caso le decimos que queremos renderizar la vista views/index.jade con algunos datos
         res.render('index', { 
             title: 'Formularios en node con Jade y Twitter Bootstrap'
-        });
-    });
-
-    //mostramos la vista views/register.jade
-    app.get("/register", function(req, res)
-    {
-    	if(req.session.username)
-    	{ 
-    		res.redirect("/home");
-    	}
-        //en este caso le decimos que queremos renderizar la vista views/index.jade con algunos datos
-        res.render('register', {
-            title: 'Formulario de registro con Twitter Bootstrap'
         });
     });
 
@@ -48,11 +28,15 @@ module.exports = function(app)
     	{
     		if(data)
     		{
-	    		//si los datos no son correctos
+	    		//si los datos no son correctos mandamos error como respuesta
+                //a ajax,´así sabe que no ha sido correcto el login
 	    		if(data.msg === "error")
 	    		{
 	    			res.send("error", 200);
 	    		}
+                //en otro caso creamos la sesión y mandamos logueado,
+                //con lo que ajax redirigira a la home al usuario con 
+                //la sesión iniciada 
 	    		else
 	    		{
 	    			req.session.username = req.body.username;
@@ -84,6 +68,7 @@ module.exports = function(app)
         }
     });
 
+    //cerramos la sesión del usuario y redirigimos al formulario de login
     app.get("/logout", function(req,res)
     {
     	req.session.destroy();
